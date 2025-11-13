@@ -2,7 +2,9 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import {
   fetchTournamentsByUser,
+  fetchUserProfile,
   type TournamentsResponse,
+  type UserProfile,
 } from "@/lib/matchplay";
 
 async function getTournaments(userId: string): Promise<TournamentsResponse> {
@@ -14,13 +16,27 @@ async function getTournaments(userId: string): Promise<TournamentsResponse> {
   }
 }
 
+async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  try {
+    return await fetchUserProfile(userId);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
+  }
+}
+
 export default async function UserPage({
   params,
 }: {
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const tournamentsData = await getTournaments(userId);
+  const [userProfile, tournamentsData] = await Promise.all([
+    getUserProfile(userId),
+    getTournaments(userId),
+  ]);
+  console.log("userProfile", userProfile);
+  const playerName = userProfile?.user?.name || `User ${userId}`;
 
   return (
     <div className={styles.container}>
@@ -28,7 +44,7 @@ export default async function UserPage({
         <Link href="/" className={styles.backLink}>
           ← Back
         </Link>
-        <h1>Tournaments for User {userId}</h1>
+        <h1>{playerName}</h1>
       </div>
 
       {tournamentsData.data.length === 0 ? (

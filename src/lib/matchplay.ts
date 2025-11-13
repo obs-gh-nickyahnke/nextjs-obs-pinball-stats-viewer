@@ -44,12 +44,91 @@ export interface TournamentData {
   standings: Standing[];
 }
 
+export interface User {
+  userId: number;
+  name: string;
+  ifpaId?: number;
+  role?: string;
+  flag?: string;
+  location?: string;
+  pronouns?: string;
+  initials?: string;
+  avatar?: string;
+  banner?: string;
+  tournamentAvatar?: string | null;
+  createdAt?: string;
+}
+
+export interface UserProfile {
+  user: User;
+  rating?: {
+    ratingId: number;
+    userId: number;
+    ifpaId?: number;
+    name: string;
+    rating: number;
+    rd: number;
+    calculatedRd: number;
+    lowerBound: number;
+    lastRatingPeriod: string;
+    rank: number;
+  };
+  ifpa?: {
+    ifpaId: number;
+    name: string;
+    rank: number | null;
+    rating: number;
+    ratingRank: number;
+    womensRank: number | null;
+    totalEvents: number;
+    initials: string;
+    city: string;
+    state: string;
+    countryCode: string;
+    countryName: string;
+    updatedAt: string;
+  };
+  shortcut?: string | null;
+  plan?: string | null;
+  userCounts?: {
+    tournamentOrganizedCount: number;
+    seriesOrganizedCount: number;
+    tournamentPlayCount: number;
+    ratingPeriodCount: number;
+  };
+}
+
 function getApiKey(): string {
   const apiKey = process.env.MATCHPLAY_API_KEY;
   if (!apiKey) {
     throw new Error("MATCHPLAY_API_KEY is not configured");
   }
   return apiKey;
+}
+
+export async function fetchUserProfile(
+  userId: string
+): Promise<UserProfile | null> {
+  const apiKey = getApiKey();
+
+  const response = await fetch(
+    `https://app.matchplay.events/api/users/${userId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    console.error(`Failed to fetch user profile: ${response.status}`);
+    return null;
+  }
+
+  return await response.json();
 }
 
 export async function fetchTournamentsByUser(
