@@ -1,54 +1,16 @@
 import Link from "next/link";
 import styles from "./page.module.css";
-
-interface Player {
-  playerId: number;
-  name: string;
-  ifpaId?: number;
-  claimedBy?: number;
-}
-
-interface Standing {
-  playerId: number;
-  position: number;
-  points: string;
-  gamesPlayed: number;
-  wins?: number;
-  losses?: number;
-  draws?: number;
-  strikeCount?: number;
-}
-
-interface Tournament {
-  tournamentId: number;
-  name: string;
-  status: string;
-  type: string;
-  startUtc: string;
-  completedAt?: string;
-  players?: Player[];
-}
-
-interface TournamentData {
-  tournament: Tournament;
-  standings: Standing[];
-}
+import {
+  fetchTournamentData,
+  type Player,
+  type TournamentData,
+} from "@/lib/matchplay";
 
 async function getTournamentData(
   tournamentId: string
 ): Promise<TournamentData | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
   try {
-    const response = await fetch(`${baseUrl}/api/tournament/${tournamentId}`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch tournament data");
-    }
-
-    return await response.json();
+    return await fetchTournamentData(tournamentId);
   } catch (error) {
     console.error("Error fetching tournament data:", error);
     return null;

@@ -1,39 +1,15 @@
-import Link from 'next/link';
-import styles from './page.module.css';
-
-interface Tournament {
-  tournamentId: number;
-  name: string;
-  status: string;
-  startUtc: string;
-  completedUtc?: string;
-  style: string;
-}
-
-interface TournamentsResponse {
-  data: Tournament[];
-  meta?: {
-    current_page: number;
-    last_page: number;
-    total: number;
-  };
-}
+import Link from "next/link";
+import styles from "./page.module.css";
+import {
+  fetchTournamentsByUser,
+  type TournamentsResponse,
+} from "@/lib/matchplay";
 
 async function getTournaments(userId: string): Promise<TournamentsResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  
   try {
-    const response = await fetch(`${baseUrl}/api/tournaments/${userId}`, {
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch tournaments');
-    }
-
-    return await response.json();
+    return await fetchTournamentsByUser(userId);
   } catch (error) {
-    console.error('Error fetching tournaments:', error);
+    console.error("Error fetching tournaments:", error);
     return { data: [] };
   }
 }
@@ -74,12 +50,12 @@ export default async function UserPage({
                   <strong>Status:</strong> {tournament.status}
                 </p>
                 <p>
-                  <strong>Started:</strong>{' '}
+                  <strong>Started:</strong>{" "}
                   {new Date(tournament.startUtc).toLocaleDateString()}
                 </p>
                 {tournament.completedUtc && (
                   <p>
-                    <strong>Completed:</strong>{' '}
+                    <strong>Completed:</strong>{" "}
                     {new Date(tournament.completedUtc).toLocaleDateString()}
                   </p>
                 )}
@@ -92,7 +68,8 @@ export default async function UserPage({
       {tournamentsData.meta && tournamentsData.meta.total > 0 && (
         <div className={styles.meta}>
           <p>
-            Showing {tournamentsData.data.length} of {tournamentsData.meta.total} tournaments
+            Showing {tournamentsData.data.length} of{" "}
+            {tournamentsData.meta.total} tournaments
           </p>
         </div>
       )}
