@@ -12,12 +12,17 @@ import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import {
+  ATTR_SERVICE_NAMESPACE,
+  ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
+} from "@opentelemetry/semantic-conventions/incubating";
+import { OTEL_CONFIG } from "./otel-config";
 
 // Configuration
 const serviceName = "nextjs-pinball-stats"; // replace with your service name
 
 const otlpEndpoint =
-  process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
+  process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? OTEL_CONFIG.defaultOtlpEndpoint;
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
 const authHeader: Record<string, string> = otlpEndpointBearerToken
@@ -27,6 +32,8 @@ const authHeader: Record<string, string> = otlpEndpointBearerToken
 // Create resource
 const resource = resourceFromAttributes({
   [ATTR_SERVICE_NAME]: serviceName,
+  [ATTR_SERVICE_NAMESPACE]: OTEL_CONFIG.serviceNamespace,
+  [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: OTEL_CONFIG.deploymentEnvironment,
 });
 
 // Initialize OpenTelemetry SDK

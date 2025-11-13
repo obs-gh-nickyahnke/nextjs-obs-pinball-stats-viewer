@@ -21,14 +21,21 @@ import {
   WebTracerProvider,
 } from "@opentelemetry/sdk-trace-web";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import {
+  ATTR_SERVICE_NAMESPACE,
+  ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
+} from "@opentelemetry/semantic-conventions/incubating";
+import { OTEL_CONFIG } from "./otel-config";
 
 // Configuration
 const serviceName = "nextjs-pinball-stats-client"; // replace with your service name
 
 // Client side environment variables:
 const otlpEndpoint =
-  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
-const otlpEndpointBearerToken = process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
+  OTEL_CONFIG.defaultOtlpEndpoint;
+const otlpEndpointBearerToken =
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
 const authHeader: Record<string, string> = otlpEndpointBearerToken
   ? { Authorization: `Bearer ${otlpEndpointBearerToken}` }
@@ -37,6 +44,8 @@ const authHeader: Record<string, string> = otlpEndpointBearerToken
 // Create resource
 const resource = resourceFromAttributes({
   [ATTR_SERVICE_NAME]: serviceName,
+  [ATTR_SERVICE_NAMESPACE]: OTEL_CONFIG.serviceNamespace,
+  [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: OTEL_CONFIG.deploymentEnvironment,
 });
 
 const provider = new WebTracerProvider({
