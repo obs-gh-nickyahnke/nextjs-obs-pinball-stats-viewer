@@ -1,0 +1,124 @@
+.container {
+  --text-primary: #000;
+  --text-secondary: #666;
+  --card-background: #fff;
+  --button-secondary-border: #e5e5e5;
+  
+  min-height: 100vh;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.backLink:hover {
+  opacity: 0.7;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.noData {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 18px;
+  margin-top: 60px;
+}
+
+.tournamentList {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.tournamentCard {
+  display: block;
+  background-color: var(--card-background);
+  border: 1px solid var(--button-secondary-border);
+  border-radius: 12px;
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tournamentCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tournamentCard h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+.tournamentDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tournamentDetails p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tournamentDetails strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.meta {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .container {
+    --text-primary: #ededed;
+    --text-secondary: #999;
+    --card-background: #1a1a1a;
+    --button-secondary-border: #333;
+  }
+
+  .tournamentCard:hover {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .tournamentList {
+    grid-template-columns: 1fr;
+  }
+}
