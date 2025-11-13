@@ -1,5 +1,7 @@
 // Shared Matchplay API functions that can be used by both API routes and server components
 
+import { logger } from "./logger-server";
+
 export interface Tournament {
   tournamentId: number;
   name: string;
@@ -109,6 +111,8 @@ function getApiKey(): string {
 export async function fetchUserProfile(
   userId: string
 ): Promise<UserProfile | null> {
+  logger.info("Fetching user profile", { userId });
+
   const apiKey = getApiKey();
 
   const response = await fetch(
@@ -124,16 +128,29 @@ export async function fetchUserProfile(
   );
 
   if (!response.ok) {
-    console.error(`Failed to fetch user profile: ${response.status}`);
+    logger.error("Failed to fetch user profile", undefined, {
+      userId,
+      statusCode: response.status,
+      statusText: response.statusText,
+    });
     return null;
   }
 
-  return await response.json();
+  const profile = await response.json();
+  logger.info("Successfully fetched user profile", {
+    userId,
+    userName: profile.user?.name,
+    ifpaId: profile.user?.ifpaId,
+  });
+
+  return profile;
 }
 
 export async function fetchTournamentsByUser(
   userId: string
 ): Promise<TournamentsResponse> {
+  logger.info("Fetching tournaments for user", { userId });
+
   const apiKey = getApiKey();
 
   const response = await fetch(
@@ -149,18 +166,33 @@ export async function fetchTournamentsByUser(
   );
 
   if (!response.ok) {
+    logger.error("Failed to fetch tournaments", undefined, {
+      userId,
+      statusCode: response.status,
+      statusText: response.statusText,
+    });
     throw new Error(`Matchplay API error: ${response.status}`);
   }
 
-  return await response.json();
+  const data = await response.json();
+  logger.info("Successfully fetched tournaments", {
+    userId,
+    tournamentCount: data.data?.length || 0,
+    totalPages: data.meta?.last_page,
+  });
+
+  return data;
 }
 
 export async function fetchTournamentData(
   tournamentId: string
 ): Promise<TournamentData> {
+  logger.info("Fetching tournament data", { tournamentId });
+
   const apiKey = getApiKey();
 
   // Fetch tournament details with players
+  logger.debug("Fetching tournament details", { tournamentId });
   const tournamentResponse = await fetch(
     `https://app.matchplay.events/api/tournaments/${tournamentId}?includePlayers=1`,
     {
@@ -174,10 +206,16 @@ export async function fetchTournamentData(
   );
 
   if (!tournamentResponse.ok) {
+    logger.error("Failed to fetch tournament details", undefined, {
+      tournamentId,
+      statusCode: tournamentResponse.status,
+      statusText: tournamentResponse.statusText,
+    });
     throw new Error(`Matchplay API error: ${tournamentResponse.status}`);
   }
 
   // Fetch standings
+  logger.debug("Fetching tournament standings", { tournamentId });
   const standingsResponse = await fetch(
     `https://app.matchplay.events/api/tournaments/${tournamentId}/standings`,
     {
@@ -191,11 +229,23 @@ export async function fetchTournamentData(
   );
 
   if (!standingsResponse.ok) {
+    logger.error("Failed to fetch tournament standings", undefined, {
+      tournamentId,
+      statusCode: standingsResponse.status,
+      statusText: standingsResponse.statusText,
+    });
     throw new Error(`Matchplay API error: ${standingsResponse.status}`);
   }
 
   const tournamentData = await tournamentResponse.json();
   const standingsData = await standingsResponse.json();
+
+  logger.info("Successfully fetched tournament data", {
+    tournamentId,
+    tournamentName: tournamentData.data?.name,
+    playerCount: tournamentData.data?.players?.length || 0,
+    standingsCount: standingsData?.length || 0,
+  });
 
   return {
     tournament: tournamentData.data,

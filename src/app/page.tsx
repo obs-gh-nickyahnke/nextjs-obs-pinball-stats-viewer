@@ -1,16 +1,28 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
+import { logger } from "@/lib/logger-client";
 
 export default function Home() {
   const [userId, setUserId] = useState("1627");
   const router = useRouter();
 
+  useEffect(() => {
+    // Log page view when component mounts
+    logger.pageView("/", {
+      initialUserId: userId,
+    });
+  }, []);
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (userId.trim()) {
+      logger.userAction("submit_user_id", {
+        userId: userId.trim(),
+        page: "home",
+      });
       router.push(`/user/${userId.trim()}`);
     }
   };

@@ -5,6 +5,7 @@ import {
   type Player,
   type TournamentData,
 } from "@/lib/matchplay";
+import { TournamentAnalytics } from "@/components/tournament-analytics";
 
 async function getTournamentData(
   tournamentId: string
@@ -51,6 +52,13 @@ export default async function TournamentPage({
 
   return (
     <div className={styles.container}>
+      <TournamentAnalytics
+        tournamentId={tournamentId}
+        tournamentName={tournament.name}
+        playerCount={tournament.players?.length || 0}
+        standingsCount={standings.length}
+      />
+
       <div className={styles.header}>
         <Link href="/" className={styles.backLink}>
           ← Back to Home

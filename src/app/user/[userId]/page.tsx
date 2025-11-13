@@ -6,6 +6,8 @@ import {
   type TournamentsResponse,
   type UserProfile,
 } from "@/lib/matchplay";
+import { UserAnalytics } from "@/components/user-analytics";
+import { TournamentCard } from "@/components/tournament-card";
 
 async function getTournaments(userId: string): Promise<TournamentsResponse> {
   try {
@@ -40,6 +42,12 @@ export default async function UserPage({
 
   return (
     <div className={styles.container}>
+      <UserAnalytics
+        userId={userId}
+        userName={playerName}
+        tournamentCount={tournamentsData.data.length}
+      />
+
       <div className={styles.header}>
         <Link href="/" className={styles.backLink}>
           ← Back
@@ -52,31 +60,11 @@ export default async function UserPage({
       ) : (
         <div className={styles.tournamentList}>
           {tournamentsData.data.map((tournament) => (
-            <Link
+            <TournamentCard
               key={tournament.tournamentId}
-              href={`/tournament/${tournament.tournamentId}`}
-              className={styles.tournamentCard}
-            >
-              <h2>{tournament.name}</h2>
-              <div className={styles.tournamentDetails}>
-                <p>
-                  <strong>Style:</strong> {tournament.style}
-                </p>
-                <p>
-                  <strong>Status:</strong> {tournament.status}
-                </p>
-                <p>
-                  <strong>Started:</strong>{" "}
-                  {new Date(tournament.startUtc).toLocaleDateString()}
-                </p>
-                {tournament.completedUtc && (
-                  <p>
-                    <strong>Completed:</strong>{" "}
-                    {new Date(tournament.completedUtc).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-            </Link>
+              tournament={tournament}
+              styles={styles}
+            />
           ))}
         </div>
       )}
